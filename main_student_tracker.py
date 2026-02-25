@@ -3,7 +3,8 @@ import csv
 import os
 import random
 from datetime import datetime
-from dotenv import load_dotenv # <-- Import the new library
+import time
+from dotenv import load_dotenv 
 
 # Load the secrets from the .env file into your local environment
 load_dotenv() 
@@ -18,7 +19,7 @@ URL = 'https://opendata.concordia.ca/API/v1/library/occupancy/'
 def fetch_real_data():
     """Fetches real data from the API and writes to CSV."""
     response = requests.get(URL, auth=(USERNAME, API_KEY))
-    response.raise_for_status() # error check
+    response.raise_for_status() 
     data = response.json()
 
     # Extract Webster Data
@@ -37,7 +38,6 @@ def fetch_real_data():
 
 def save_estimated_data(last_count):
     """Generates an estimate +/- 5% of the last real count and writes to CSV."""
-    # Generate a random multiplier between 0.95 (-5%) and 1.05 (+5%)
     variance = random.uniform(0.95, 1.05)
     estimated_count = int(last_count * variance)
     estimated_count = max(0, estimated_count) # Ensure it doesn't drop below 0
@@ -52,7 +52,6 @@ def save_estimated_data(last_count):
         
     return estimated_count
 
-# INITIALIZATION: Create CSV with headers if it doesn't exist
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -64,7 +63,7 @@ print(f"Target: {URL}")
 print(f"Interval: 5 Minutes (Real API call every 10 mins, Estimate every 5 mins)")
 
 last_real_count = 0
-is_real_fetch = True # Toggle to switch between Real and Estimate
+is_real_fetch = True 
 
 try:
     while True:
@@ -81,10 +80,8 @@ try:
             estimated_count = save_estimated_data(last_real_count)
             print(f"[{current_time}] Success (Estimated): {estimated_count} people recorded.")
             
-        # Toggle the flag for the next loop iteration
         is_real_fetch = not is_real_fetch
         
-        # Sleep for 5 mins (300 seconds)
         time.sleep(300)
         
 except KeyboardInterrupt:
