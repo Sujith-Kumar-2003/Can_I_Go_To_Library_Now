@@ -7,14 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
     <style>
         .concordia-maroon { color: #912338; }
         .bg-concordia-maroon { background-color: #912338; }
-        
         .pulse {
             display: inline-block;
             width: 8px;
@@ -25,7 +22,6 @@
             box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
@@ -57,7 +53,7 @@
                 
                 <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700">
                     <div class="flex justify-between text-xs font-medium">
-                        <span class="text-slate-500 dark:text-slate-400 uppercase">Last Sync</span>
+                        <span class="text-slate-500 dark:text-slate-400 uppercase tracking-tighter">Last Sync (MTL)</span>
                         <span id="timestamp" class="text-slate-800 dark:text-slate-200 italic font-mono">--</span>
                     </div>
                 </div>
@@ -82,16 +78,14 @@
         function applyTheme() {
             const hour = new Date().getHours();
             const isNight = hour >= 20 || hour < 7;
-            const html = document.documentElement;
-            const icon = document.getElementById('mode-icon');
+            document.documentElement.classList.toggle('dark', isNight);
+            document.getElementById('mode-icon').innerText = isNight ? '🌙' : '☀️';
+        }
 
-            if (isNight) {
-                html.classList.add('dark');
-                icon.innerText = '🌙';
-            } else {
-                html.classList.remove('dark');
-                icon.innerText = '☀️';
-            }
+        function formatLocalTime(rawString) {
+            // Fixes the UTC to Montreal offset
+            const dateObj = rawString.includes('T') ? new Date(rawString) : new Date(rawString.replace(' ', 'T') + 'Z');
+            return dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
         }
 
         async function updateDashboard() {
@@ -102,24 +96,16 @@
                 const rows = data.trim().split('\n').slice(1); 
                 
                 const recentRows = rows.slice(-20);
-                const labels = recentRows.map(row => {
-                    const t = row.split(',')[0];
-                    const timePart = t.includes('T') ? t.split('T')[1] : (t.includes(' ') ? t.split(' ')[1] : t);
-                    return timePart.substring(0, 5); 
-                });
+                const labels = recentRows.map(row => formatLocalTime(row.split(',')[0]));
                 const values = recentRows.map(row => parseInt(row.split(',')[1]) || 0);
 
-                // Peak Stat Calculation
                 const peak = Math.max(...values);
                 document.getElementById('peak-stat').innerText = `Peak (Recent): ${peak}`;
 
                 const latestRow = rows[rows.length - 1].split(',');
                 const currentCount = parseInt(latestRow[1]);
                 document.getElementById('occupancy').innerText = currentCount;
-                
-                const rawTime = latestRow[0];
-                const cleanTime = rawTime.includes('T') ? rawTime.split('T')[1] : (rawTime.includes(' ') ? rawTime.split(' ')[1] : rawTime);
-                document.getElementById('timestamp').innerText = cleanTime.substring(0, 5);
+                document.getElementById('timestamp').innerText = formatLocalTime(latestRow[0]);
 
                 const statusLabel = document.getElementById('status-label');
                 const liveIcon = '<span class="pulse"></span>';
@@ -136,7 +122,6 @@
 
                 const ctx = document.getElementById('utilizationChart').getContext('2d');
                 const isDark = document.documentElement.classList.contains('dark');
-                
                 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
                 gradient.addColorStop(0, isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(145, 35, 56, 0.3)');
                 gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -179,9 +164,7 @@
                         }
                     });
                 }
-            } catch (error) {
-                console.error("Sync Error:", error);
-            }
+            } catch (error) { console.error("Sync Error:", error); }
         }
 
         updateDashboard();
