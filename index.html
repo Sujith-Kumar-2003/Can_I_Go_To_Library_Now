@@ -143,13 +143,37 @@
                                 backgroundColor: gradient,
                                 fill: true,
                                 tension: 0.4,
-                                pointRadius: 0
+                                pointRadius: 2, // Small radius so it's catchable by hover
+                                pointHitRadius: 20, // Larger area for easier hovering
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: isDark ? '#ef4444' : '#912338',
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            interaction: {
+                                intersect: false,
+                                mode: 'index',
+                            },
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    enabled: true,
+                                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                    titleColor: isDark ? '#f1f5f9' : '#1e293b',
+                                    bodyColor: isDark ? '#f1f5f9' : '#1e293b',
+                                    borderColor: isDark ? '#334155' : '#e2e8f0',
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    displayColors: false,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ` ${context.parsed.y} Students`;
+                                        }
+                                    }
+                                }
+                            },
                             scales: {
                                 y: { 
                                     beginAtZero: true,
