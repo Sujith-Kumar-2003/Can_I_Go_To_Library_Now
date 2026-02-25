@@ -2,14 +2,14 @@ name: Library Occupancy Tracker
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Tells GitHub to run this every 5 minutes
-  workflow_dispatch: # Adds a button so you can run it manually to test
+    - cron: '*/5 * * * *' 
+  workflow_dispatch: 
 
 jobs:
   run-tracker:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Allows the bot to "push" the CSV back to your repo
+      contents: write 
 
     steps:
       - name: Checkout repository
