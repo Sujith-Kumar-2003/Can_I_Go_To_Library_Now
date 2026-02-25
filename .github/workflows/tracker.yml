@@ -1,0 +1,38 @@
+name: Library Occupancy Tracker
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # Tells GitHub to run this every 5 minutes
+  workflow_dispatch: # Adds a button so you can run it manually to test
+
+jobs:
+  run-tracker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the bot to "push" the CSV back to your repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv
+
+      - name: Run Python Script
+        env:
+          CONCORDIA_API_KEY: ${{ secrets.CONCORDIA_API_KEY }}
+        run: python main_student_tracker.py
+
+      - name: Commit and push updated CSV
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add library_stats.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update library occupancy" && git push)
