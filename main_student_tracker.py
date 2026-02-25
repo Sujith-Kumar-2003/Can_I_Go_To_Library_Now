@@ -32,8 +32,6 @@ def run_tracker():
             writer = csv.writer(file)
             writer.writerow(['Timestamp', 'Occupancy', 'Type'])
 
-    # Determine if this is a "Real" fetch (every 10th minute: 0, 10, 20...)
-    # or an "Estimated" fetch (every 5th minute: 5, 15, 25...)
     current_minute = datetime.now().minute
     is_real_fetch = (current_minute % 10 == 0)
 
@@ -44,13 +42,17 @@ def run_tracker():
             data = response.json()
             
             count = max(0, int(float(data['Webster']['Occupancy'])))
+            # Real timestamp from API looks like: 2026-02-25 08:25:00.000
             timestamp = data['Webster']['LastRecordTime']
             record_type = "Real"
         else:
             last_val = get_last_count()
             variance = random.uniform(0.95, 1.05)
             count = max(0, int(last_val * variance))
-            timestamp = datetime.now().isoformat(timespec='seconds')
+            
+            # FIXED: Create a timestamp that matches the API exactly
+            # format: YYYY-MM-DD HH:MM:SS.000
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.000')
             record_type = "Estimated"
 
         # Append to CSV
