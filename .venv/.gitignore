@@ -1,0 +1,25 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Security / Environment Variables
+.env
+.env.local
+
+# Python Cache and Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# macOS specific hidden files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# IDE / Editor folders (if you use VS Code or PyCharm)
+.vscode/
+.idea/
